@@ -21,18 +21,20 @@ add_subdirectory(external/imgui)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})
 
 target_include_directories(${PROJECT_NAME} 
+  PUBLIC ${EXTRA_INCLUDES}
   PUBLIC C:\\VulkanSDK\\1.3.211.0\\include
   PUBLIC external/glfw/include
   PUBLIC external/glm/
   PUBLIC external/imgui
-  ${EXTRA_INCLUDES}
 )
 
 target_link_directories(${PROJECT_NAME} 
+  PUBLIC ${EXTRA_INCLUDES}
   PUBLIC C:\\VulkanSDK\\1.3.211.0\\Lib
-  PRIVATE external/glfw/src
+  PUBLIC external/glfw/src
   PUBLIC external/glm/
-  PRIVATE external/imgui
+  PUBLIC external/imgui
+
 )
 
 
