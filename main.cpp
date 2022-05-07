@@ -4,9 +4,6 @@ int main()
 {
     HelloTriangleApplication app;
 
-    Test test;
-    test.print();
-
     try
     {
         app.run();

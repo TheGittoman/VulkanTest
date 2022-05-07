@@ -29,16 +29,14 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_directories(${PROJECT_NAME} 
-  PUBLIC ${EXTRA_INCLUDES}
   PUBLIC C:\\VulkanSDK\\1.3.211.0\\Lib
   PUBLIC external/glfw/src
   PUBLIC external/glm/
   PUBLIC external/imgui
-
 )
 
 
-target_link_libraries(${PROJECT_NAME} ${EXTRA_LIBS} vulkan-1 glfw glm imgui opengl32)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${EXTRA_LIBS} vulkan-1 glfw glm imgui opengl32)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
