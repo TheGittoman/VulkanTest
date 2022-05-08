@@ -3,9 +3,11 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include <optional>
 #include <cstring>
 #include <iostream>
 #include <vector>
+#include <set>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -18,6 +20,18 @@ const bool enableValidationLayers = false;
 #else
 const bool enableValidationLayers = true;
 #endif
+
+inline VKAPI_ATTR VkBool32 VKAPI_CALL
+debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+    void *pUserData)
+{
+  std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+
+  return VK_FALSE;
+}
 
 inline VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
                                              const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger)
@@ -43,14 +57,28 @@ inline void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMesse
   }
 }
 
+struct QueueFamilyIndices
+{
+  std::optional<uint32_t> graphicsFamily;
+  std::optional<uint32_t> presentFamily;
+
+  bool isComplete()
+  {
+    return graphicsFamily.has_value() && presentFamily.has_value();
+  }
+};
+
 class HelloTriangleApplication
 {
 private:
   GLFWwindow *window;
-  const uint32_t WIDTH = 800;
-  const uint32_t HEIGHT = 600;
   VkInstance instance;
   VkDebugUtilsMessengerEXT debugMessenger;
+  VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+  VkDevice device;
+  VkQueue graphicsQueue;
+  VkSurfaceKHR surface;
+  VkQueue presentQueue;
 
 public:
   void run()
@@ -66,35 +94,27 @@ private:
 
   void initVulkan();
 
+  void createSurface();
+
+  void createLogicalDevice();
+
+  void pickPhysicalDevice();
+
+  bool isDeviceSuitable(VkPhysicalDevice device);
+
+  QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
   void mainLoop();
 
   void cleanup();
 
   void createInstance();
 
-  void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo)
-  {
-    createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    createInfo.pfnUserCallback = debugCallback;
-  }
+  void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
   void setupDebugMessenger();
 
   std::vector<const char *> getRequiredExtensions();
 
   bool checkValidationLayerSupport();
-
-  static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-      VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-      VkDebugUtilsMessageTypeFlagsEXT messageType,
-      const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-      void *pUserData)
-  {
-    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
-    return VK_FALSE;
-  }
-};
+}; // end of HelloTriangleApplication class
